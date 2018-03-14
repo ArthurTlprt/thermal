@@ -64,7 +64,7 @@ for i, row in test_df.iterrows():
     print("")
     accu = compute_accuracy(row)
     test_df['accuracy_mask'][i] = accu
-    if i % 10 == 0:
+    if i % 10 == 0.:
         test_df.to_csv("../performances/tmp")
     print("######################################")
 
