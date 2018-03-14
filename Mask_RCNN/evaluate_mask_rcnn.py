@@ -55,7 +55,7 @@ def compute_accuracy(row):
         accu=0
     return accu
 
-test_df['accuracy_mask'] = 0
+test_df['accuracy_mask'] = np.nan
 
 for i, row in test_df.iterrows():
     print("######################################")
@@ -63,8 +63,8 @@ for i, row in test_df.iterrows():
     print(row["Thermal mask file"])
     print("")
     accu = compute_accuracy(row)
-    test_df['accuracy_mask'] = accu
-    if i % 10:
+    test_df['accuracy_mask'][i] = accu
+    if i % 10 == 0:
         test_df.to_csv("../performances/tmp")
     print("######################################")
 
