@@ -16,12 +16,10 @@ def predict_box(image):
 
 
 test_df["boxes"] = np.nan
-
 print(test_df)
 
 for i, row in test_df.iterrows():
-    print(row["Thermal mask file"])
-    box = predict_box(skimage.io.imread(path+row["Thermal file"]))
-    test_df.set_value(i, "boxes", box)
+    print(row["Thermal file"])
+    test_df["boxes",i] = str(predict_box(skimage.io.imread(path+row["Thermal file"])))
 
 test_df.to_csv("box")
