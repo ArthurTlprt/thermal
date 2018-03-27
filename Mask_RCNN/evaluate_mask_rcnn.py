@@ -3,7 +3,7 @@ from mask_rcnn import *
 path = "../trimodal-people-segmentation/TrimodalDataset/"
 
 
-test_df = pd.read_csv(path+"test.csv")
+test_df = pd.read_csv(path+"test_RGB.csv")
 
 def predict_mask(image):
     # Run detection
@@ -60,14 +60,15 @@ test_df['accuracy_mask'] = np.nan
 for i, row in test_df.iterrows():
     print("######################################")
     print(row["Thermal file"])
+    row["rgb file"] = row["Thermal file"]
     print(row["Thermal mask file"])
     print("")
     accu = compute_accuracy(row)
     test_df['accuracy_mask'][i] = accu
     if i % 10 == 0.:
-        test_df.to_csv("../performances/tmp")
+        test_df.to_csv("../performances/rgb/tmp")
     print("######################################")
 
-test_df.to_csv("../performances/" + str(test_df['accuracy_mask'].mean()))
+test_df.to_csv("../performances/rgb" + str(test_df['accuracy_mask'].mean()))
 
 print("it works")
