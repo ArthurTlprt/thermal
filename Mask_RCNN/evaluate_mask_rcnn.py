@@ -17,8 +17,8 @@ def predict_mask(image):
     return r['masks'][:,:,person_idx]
 
 def compute_accuracy(row):
-    pred_mask = predict_mask(skimage.io.imread(path+row["Thermal file"]))
-    real_mask = skimage.io.imread(path+row["Thermal mask file"])
+    pred_mask = predict_mask(skimage.io.imread(path+row["RGB file"]))
+    real_mask = skimage.io.imread(path+row["RGB mask file"])
 
 
     # j'additionne les images et compte les pixels > 255
@@ -59,9 +59,9 @@ test_df['accuracy_mask'] = np.nan
 
 for i, row in test_df.iterrows():
     print("######################################")
-    print(row["Thermal file"])
-    row["rgb file"] = row["Thermal file"]
-    print(row["Thermal mask file"])
+    print(row["RGB file"])
+    #row["RGB file"] = row["RGB file"]
+    print(row["RGB mask file"])
     print("")
     accu = compute_accuracy(row)
     test_df['accuracy_mask'][i] = accu
