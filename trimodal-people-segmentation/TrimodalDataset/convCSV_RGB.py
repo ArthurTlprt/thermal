@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageOps
 
 fichier = open("testi.csv", "a")
-with open('test.csv') as f:
+with open('train.csv') as f:
     has_header = csv.Sniffer().has_header(f.read(1024))
     f.seek(0)  # rewind
     incsv = csv.reader(f)

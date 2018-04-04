@@ -241,4 +241,4 @@ class CycleGAN():
 
 if __name__ == '__main__':
     gan = CycleGAN()
-    gan.train(epochs=30000, batch_size=2, save_interval=200)
+    gan.train(epochs=30000, batch_size=16, save_interval=200)

@@ -68,7 +68,8 @@ class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
                # Load a random image from the images folder
 
 
-file_name = "../trimodal-people-segmentation/TrimodalDataset/Scene 3/SyncT/01115.jpg"
+#file_name = "../trimodal-people-segmentation/TrimodalDataset/Scene 3/SyncT/01115.jpg"
+file_name = "I00034.jpg"
 image = skimage.io.imread(file_name)
 
 # Run detection
