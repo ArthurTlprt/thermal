@@ -22,6 +22,7 @@ class CycleGAN():
         self.img_rows = 128
         self.img_cols = 128
         self.channels = 3
+        self.combines_scores = []
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
 
         # Configure data loader
@@ -195,9 +196,17 @@ class CycleGAN():
             # Train the generators
             g_loss = self.combined.train_on_batch([imgs_A, imgs_B], [valid, valid, imgs_A, imgs_B, imgs_A, imgs_B])
 
+            # Put loss in list
+            self.combines_scores.append(g_loss)
+
+            # Save model to h5 if g_loss better
+            if g_loss = min(self.combines_scores):
+                self.g_AB.save("AB"+str(g_loss)+"h5")
+                self.g_BA.save("BA"+str(g_loss)+"h5")
+
             elapsed_time = datetime.datetime.now() - start_time
             # Plot the progress
-            print ("%d time: %s" % (epoch, elapsed_time))
+            print ("%d time: %s loss: %s" % (epoch, elapsed_time, g_loss))
 
             # If at save interval => save generated image samples
             if epoch % save_interval == 0:
@@ -241,4 +250,4 @@ class CycleGAN():
 
 if __name__ == '__main__':
     gan = CycleGAN()
-    gan.train(epochs=30000, batch_size=2, save_interval=200)
+    gan.train(epochs=30000, batch_size=16, save_interval=200)

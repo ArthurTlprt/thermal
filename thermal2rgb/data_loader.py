@@ -36,4 +36,8 @@ class DataLoader():
         return img[np.newaxis, :, :, :]
 
     def imread(self, path):
+<<<<<<< HEAD
         return scipy.misc.imread(path, mode='RGB').astype(np.float)
+=======
+        return scipy.misc.imread(path, mode='RGB').astype(np.float)
+>>>>>>> 9c2e0c5d51d65a754a5a0fb8d099901960ef89bb
