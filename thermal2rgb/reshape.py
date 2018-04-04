@@ -23,10 +23,10 @@ def reshape_file(path):
 
     for i,im in enumerate(A):
         #misc.imsave("trainA/"+str(i)+".png", im)
-        im.save("trainA/"+str(i)+".jpg", "JPEG")
+        im.save("dataset/thermal2rgb/trainA/"+str(i)+".jpg", "JPEG")
     for i,im in enumerate(B):
         #misc.imsave("trainB/"+str(i)+".png", im)
-        im.save("trainB/"+str(i)+".jpg", "JPEG")
+        im.save("dataset/thermal2rgb/trainB/"+str(i)+".jpg", "JPEG")
 
 def reshape(path):
     png_path = path[:-3]+"png"
