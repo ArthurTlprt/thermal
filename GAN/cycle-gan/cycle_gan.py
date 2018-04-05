@@ -195,14 +195,11 @@ class CycleGAN():
 
             # Train the generators
             g_loss = self.combined.train_on_batch([imgs_A, imgs_B], [valid, valid, imgs_A, imgs_B, imgs_A, imgs_B])
+            g_loss = sum(g_loss)
 
             # Put loss in list
             self.combines_scores.append(g_loss)
 
-            # Save model to h5 if g_loss better
-            if g_loss = min(self.combines_scores):
-                self.g_AB.save("AB"+str(g_loss)+"h5")
-                self.g_BA.save("BA"+str(g_loss)+"h5")
 
             elapsed_time = datetime.datetime.now() - start_time
             # Plot the progress
@@ -210,6 +207,10 @@ class CycleGAN():
 
             # If at save interval => save generated image samples
             if epoch % save_interval == 0:
+                # Save model to h5 if g_loss better
+                if g_loss == min(self.combines_scores):
+                    self.g_AB.save("models/AB/"+str(g_loss)+".h5")
+                    self.g_BA.save("models/BA/"+str(g_loss)+".h5")
                 self.save_imgs(epoch)
 
     def save_imgs(self, epoch):
@@ -218,6 +219,8 @@ class CycleGAN():
 
         imgs_A = self.data_loader.load_data(domain="A", batch_size=1, is_testing=True)
         imgs_B = self.data_loader.load_data(domain="B", batch_size=1, is_testing=True)
+
+        imgs_A, imgs_B = self.data_loader.load_test_data()
 
         # Demo (for GIF)
         #imgs_A = self.data_loader.load_img('datasets/apple2orange/testA/n07740461_1541.jpg')

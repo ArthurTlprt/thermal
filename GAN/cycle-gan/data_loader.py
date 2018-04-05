@@ -29,6 +29,24 @@ class DataLoader():
 
         return imgs
 
+    def load_test_data(self):
+        path_B = glob('./datasets/%s/testB/*' % (self.dataset_name))
+        img_B_path = np.random.choice(path_B)
+
+        fname = img_B_path.split('/')[-1]
+        img_A_path = './datasets/%s/testA/%s' % (self.dataset_name, fname)
+
+
+        img_A = self.imread(img_A_path)
+        img_A = [scipy.misc.imresize(img_A, self.img_res)]
+        img_A = np.array(img_A)/127.5 - 1.
+
+        img_B = self.imread(img_B_path)
+        img_B = [scipy.misc.imresize(img_B, self.img_res)]
+        img_B = np.array(img_B)/127.5 - 1.
+
+        return img_A, img_B
+
     def load_img(self, path):
         img = self.imread(path)
         img = scipy.misc.imresize(img, self.img_res)

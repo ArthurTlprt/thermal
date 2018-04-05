@@ -6,9 +6,9 @@ def copy():
 	size = 41640
 
 	for i in range(size):
-		A = Image.open("datasets/thermal2rgb/testA/"+str(i)+".jpg")
+		A = Image.open("../thermal2rgb/datasets/thermal2rgb/testA/"+str(i)+".jpg")
 		A.load()
-		B = Image.open("datasets/thermal2rgb/testB/"+str(i)+".jpg")
+		B = Image.open("../thermal2rgb/datasets/thermal2rgb/testB/"+str(i)+".jpg")
 		B.load()
 		dataA = np.array(A)
 		dataB = np.array(B)
@@ -24,9 +24,9 @@ def train():
 	size = 50184
 
 	for i in range(size):
-		A = Image.open("datasets/thermal2rgb/trainA/"+str(i)+".jpg")
+		A = Image.open("../thermal2rgb/datasets/thermal2rgb/trainA/"+str(i)+".jpg")
 		A.load()
-		B = Image.open("datasets/thermal2rgb/trainB/"+str(i)+".jpg")
+		B = Image.open("../thermal2rgb/datasets/thermal2rgb/trainB/"+str(i)+".jpg")
 		B.load()
 		dataA = np.array(A)
 		dataB = np.array(B)
@@ -35,5 +35,5 @@ def train():
 		im.save("datasets/thermal2rgb/train/"+str(i)+".jpg", "JPEG")
 
 
-
-train()
+copy()
+#train()

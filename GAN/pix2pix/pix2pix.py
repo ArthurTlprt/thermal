@@ -19,8 +19,8 @@ import os
 class Pix2Pix():
     def __init__(self):
         # Input shape
-        self.img_rows = 128
-        self.img_cols = 128
+        self.img_rows = 256
+        self.img_cols = 256
         self.channels = 3
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
 
@@ -29,7 +29,7 @@ class Pix2Pix():
         self.data_loader = DataLoader(dataset_name=self.dataset_name,
                                       img_res=(self.img_rows, self.img_cols))
 
-
+        self.scores = []
         # Calculate output shape of D (PatchGAN)
         patch = int(self.img_rows / 2**4)
         self.disc_patch = (patch, patch, 1)
@@ -175,13 +175,17 @@ class Pix2Pix():
 
             # Train the generators
             g_loss = self.combined.train_on_batch([imgs_A, imgs_B], [valid, imgs_A])
-
+            g_loss = sum(g_loss)
             elapsed_time = datetime.datetime.now() - start_time
             # Plot the progress
-            print ("%d time: %s" % (epoch, elapsed_time))
+            print ("%d time: %s loss: %s" % (epoch, elapsed_time, g_loss))
 
             # If at save interval => save generated image samples
             if epoch % save_interval == 0:
+                self.scores.append(g_loss)
+                if g_loss == min(self.scores):
+                    print("new minimum found")
+                    self.generator.save("models/"+str(g_loss)+".h5")
                 self.save_imgs(epoch)
 
     def save_imgs(self, epoch):
@@ -211,4 +215,4 @@ class Pix2Pix():
 
 if __name__ == '__main__':
     gan = Pix2Pix()
-    gan.train(epochs=30000, batch_size=1, save_interval=200)
+    gan.train(epochs=30000, batch_size=2, save_interval=200)
