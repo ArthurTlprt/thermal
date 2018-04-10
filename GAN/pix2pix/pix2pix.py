@@ -23,8 +23,8 @@ import cv2
 class Pix2Pix():
     def __init__(self):
         # Input shape
-        self.img_rows = 256
-        self.img_cols = 256
+        self.img_rows = 128
+        self.img_cols = 128
         self.channels = 3
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
 
@@ -189,7 +189,7 @@ class Pix2Pix():
                 self.scores.append(g_loss)
                 if g_loss == min(self.scores):
                     print("new minimum found")
-                    self.generator.save("models/"+str(g_loss)+"inv.h5")
+                    self.generator.save("models/"+str(g_loss)+".h5")
                 self.save_imgs(epoch)
 
     def save_imgs(self, epoch):
@@ -201,6 +201,18 @@ class Pix2Pix():
 
         gen_imgs = np.concatenate([imgs_B, fake_A, imgs_A])
 
+<<<<<<< HEAD
+=======
+        # fake_A = np.resize(fake_A,(128,128,3))
+        # imgs_B = np.resize(imgs_B,(128,128,3))
+        # fake_A = np.asarray(fake_A,dtype='float')
+        # imgs_B = np.asarray(imgs_B,dtype='float')
+        # m_A = mse(imgs_A,fake_A)
+        # s_A = ssim(imgs_A, fake_A, multichannel=True)
+        #
+        # print("MSE: "+str(m_A)+" SSIM: "+str(s_A))
+
+>>>>>>> 93bf336105bab1a1fc75da7f3124bce69cef56f4
         # Rescale images 0 - 1
         gen_imgs = 0.5 * gen_imgs + 0.5
 
@@ -213,7 +225,7 @@ class Pix2Pix():
                 axs[i, j].set_title(titles[i])
                 axs[i,j].axis('off')
                 cnt += 1
-        fig.savefig("images/thermal2rgbinv/%dinv.png" % (epoch))
+        fig.savefig("images/thermal2rgbinv/%d.png" % (epoch))
         plt.close()
 
 
