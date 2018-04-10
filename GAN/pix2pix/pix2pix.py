@@ -20,6 +20,12 @@ from skimage import data, img_as_float
 from skimage.measure import compare_ssim as ssim
 import cv2
 
+def mse(imageA,imageB):
+    err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
+    # /!\ Images needs same dimensions
+    # divise by number of pixels
+    err /= float(imageA.shape[0] * imageA.shape[1])
+    return err
 
 def mse(imageA,imageB): 
     err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
@@ -198,7 +204,7 @@ class Pix2Pix():
                 self.scores.append(g_loss)
                 if g_loss == min(self.scores):
                     print("new minimum found")
-                    self.generator.save("models/"+str(g_loss)+".h5")
+                    self.generator.save("models/"+str(g_loss)+"inv.h5")
                 self.save_imgs(epoch)
 
     def save_imgs(self, epoch):
@@ -230,11 +236,11 @@ class Pix2Pix():
                 axs[i, j].set_title(titles[i])
                 axs[i,j].axis('off')
                 cnt += 1
-        fig.savefig("images/%s/%d.png" % (self.dataset_name, epoch))
+        fig.savefig("images/thermal2rgbinv/%dinv.png" % (epoch))
         plt.close()
 
 
 
 if __name__ == '__main__':
     gan = Pix2Pix()
-    gan.train(epochs=30000, batch_size=4, save_interval=20)
+    gan.train(epochs=30000, batch_size=4, save_interval=10)
