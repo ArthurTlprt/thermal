@@ -16,6 +16,11 @@ from data_loader import DataLoader
 import numpy as np
 import os
 
+from skimage import data, img_as_float
+from skimage.measure import compare_ssim as ssim
+import cv2
+
+
 class Pix2Pix():
     def __init__(self):
         # Input shape
@@ -197,6 +202,14 @@ class Pix2Pix():
 
         gen_imgs = np.concatenate([imgs_B, fake_A, imgs_A])
 
+        fake_A = np.resize(fake_A,(128,128,3))
+        imgs_A = np.resize(imgs_A,(128,128,3))
+        fake_A = np.asarray(fake_A,dtype='float')
+        imgs_A = np.asarray(imgs_A,dtype='float')
+        m_A = mse(imgs_A,fake_A)
+        s_A = ssim(imgs_A, fake_A, multichannel=True)
+        print("MSE: "+str(m_A)+" SSIM: "+str(s_A))
+
         # Rescale images 0 - 1
         gen_imgs = 0.5 * gen_imgs + 0.5
 
@@ -211,6 +224,13 @@ class Pix2Pix():
                 cnt += 1
         fig.savefig("images/thermal2rgbinv/%dinv.png" % (epoch))
         plt.close()
+
+    def mse(imageA,imageB): 
+        err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
+        # /!\ Images needs same dimensions
+        # divise by number of pixels
+        err /= float(imageA.shape[0] * imageA.shape[1])
+        return err
 
 
 if __name__ == '__main__':
