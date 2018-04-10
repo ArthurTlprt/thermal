@@ -36,8 +36,8 @@ class DataLoader():
 
         imgs_A = np.array(imgs_A)/127.5 - 1.
         imgs_B = np.array(imgs_B)/127.5 - 1.
-
-        return imgs_A, imgs_B
+        # therm to rgb
+        return imgs_B, imgs_A
 
 
     def imread(self, path):
