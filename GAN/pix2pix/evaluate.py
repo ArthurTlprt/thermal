@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -9,12 +11,17 @@ from data_loader import DataLoader
 
 from skimage.measure import compare_ssim as ssim
 
+
+n = int(sys.argv[1])
+print(n)
 generator = load_model("models/20.7344712317.h5")
 
 def mse(x, y):
     return np.linalg.norm(x - y)
 
-
+def mean(l):
+    return sum(l)/float(len(l))
+    
 accuracy_ssim = []
 error_mse = []
 
@@ -24,22 +31,19 @@ img_cols = 128
 dataset_name = 'thermal2rgb'
 data_loader = DataLoader(dataset_name=dataset_name, img_res=(img_rows, img_cols))
 
-imgs_A, imgs_B = data_loader.load_data(batch_size=2, is_testing=True)
-fakes_A = generator.predict(imgs_B)
-fakes_A = np.asarray(fakes_A,dtype=np.float64)
 
-for i, img_A in enumerate(imgs_A):
-    print(fakes_A[i].shape)
-    print(img_A.shape)
-    print(fakes_A[i].dtype)
 
-    accuracy_ssim.append(ssim(fakes_A[i], img_A, data_range=img_A.max() - img_A.min(), multichannel=True))
-    print(accuracy_ssim[i])
+for j in range(n//10):
+    imgs_A, imgs_B = data_loader.load_data(batch_size=10, is_testing=True)
+    fakes_A = generator.predict(imgs_B)
+    fakes_A = np.asarray(fakes_A,dtype=np.float64)
 
-    error_mse.append(mse(img_A,fakes_A[i]))
-    print(error_mse[i])
+    for i, img_A in enumerate(imgs_A):
+        ac = ssim(fakes_A[i], img_A, data_range=img_A.max() - img_A.min(), multichannel=True)
+        accuracy_ssim.append(ac)
 
-    plt.imshow(0.5 * fakes_A[i] + 0.5)
-    plt.show()
-    plt.imshow(0.5 * img_A + 0.5)
-    plt.show()
+        err = mse(img_A,fakes_A[i])
+        error_mse.append(err)
+
+print(mean(accuracy_ssim))
+print(mean(error_mse))
