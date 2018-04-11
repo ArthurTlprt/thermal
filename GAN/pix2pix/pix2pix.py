@@ -20,8 +20,6 @@ from skimage import data, img_as_float
 from skimage.measure import compare_ssim as ssim
 import cv2
 
-
-
 class Pix2Pix():
     def __init__(self):
         # Input shape
