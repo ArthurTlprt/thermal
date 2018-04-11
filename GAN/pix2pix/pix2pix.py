@@ -192,8 +192,9 @@ class Pix2Pix():
             g_loss = sum(g_loss)
 
             # get the val loss
-            test_batch_size = int(0.2 * batch_size)
+            test_batch_size = batch_size
             imgs_A, imgs_B = self.data_loader.load_data(test_batch_size, is_testing=True)
+
             valid = np.ones((test_batch_size,) + self.disc_patch)
             val_g_loss = self.combined.test_on_batch([imgs_A, imgs_B], [valid, imgs_A], sample_weight=None)
             val_g_loss = sum(val_g_loss)
