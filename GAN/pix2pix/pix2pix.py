@@ -20,12 +20,7 @@ from skimage import data, img_as_float
 from skimage.measure import compare_ssim as ssim
 import cv2
 
-def mse(imageA,imageB):
-    err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
-    # /!\ Images needs same dimensions
-    # divise by number of pixels
-    err /= float(imageA.shape[0] * imageA.shape[1])
-    return err
+
 
 class Pix2Pix():
     def __init__(self):
@@ -40,7 +35,9 @@ class Pix2Pix():
         self.data_loader = DataLoader(dataset_name=self.dataset_name,
                                       img_res=(self.img_rows, self.img_cols))
 
-        self.scores = []
+        self.loss = []
+        self.val_loss = []
+
         # Calculate output shape of D (PatchGAN)
         patch = int(self.img_rows / 2**4)
         self.disc_patch = (patch, patch, 1)
@@ -49,7 +46,7 @@ class Pix2Pix():
         self.gf = 64
         self.df = 64
 
-        optimizer = Adam(0.0002, 0.5)
+        optimizer = Adam(0.00001, 0.5)
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
@@ -78,6 +75,14 @@ class Pix2Pix():
         self.combined.compile(loss=['mse', 'mae'],
                               loss_weights=[1, 100],
                               optimizer=optimizer)
+
+    def learning_curve(self):
+        plt.xlabel("epochs")
+        plt.ylabel("Loss")
+        plt.plot(self.loss, label="loss")
+        plt.plot(self.val_loss, label="val loss")
+        plt.legend(bbox_to_anchor=(0.1, 0.9), loc=2, borderaxespad=0.)
+        plt.show()
 
     def build_generator(self):
         """U-Net Generator"""
@@ -187,16 +192,28 @@ class Pix2Pix():
             # Train the generators
             g_loss = self.combined.train_on_batch([imgs_A, imgs_B], [valid, imgs_A])
             g_loss = sum(g_loss)
+
+            # get the val loss
+            test_batch_size = int(0.2 * batch_size)
+            imgs_A, imgs_B = self.data_loader.load_data(test_batch_size, is_testing=True)
+            valid = np.ones((test_batch_size,) + self.disc_patch)
+            val_g_loss = self.combined.test_on_batch([imgs_A, imgs_B], [valid, imgs_A], sample_weight=None)
+            val_g_loss = sum(val_g_loss)
+            self.val_loss.append(val_g_loss)
+
             elapsed_time = datetime.datetime.now() - start_time
+
             # Plot the progress
-            print ("%d time: %s loss: %s" % (epoch, elapsed_time, g_loss))
+            print ("%d time: %s loss: %s val_loss: %s" % (epoch, elapsed_time, g_loss, val_g_loss))
+
+            self.loss.append(g_loss)
+
+            if g_loss == min(self.loss):
+                print("new minimum found")
+                self.generator.save("models/"+str(g_loss)+".h5")
 
             # If at save interval => save generated image samples
             if epoch % save_interval == 0:
-                self.scores.append(g_loss)
-                if g_loss == min(self.scores):
-                    print("new minimum found")
-                    self.generator.save("models/"+str(g_loss)+".h5")
                 self.save_imgs(epoch)
 
     def save_imgs(self, epoch):
@@ -208,16 +225,6 @@ class Pix2Pix():
 
         gen_imgs = np.concatenate([imgs_B, fake_A, imgs_A])
 
-        # fake_A = np.resize(fake_A,(128,128,3))
-        # imgs_B = np.resize(imgs_B,(128,128,3))
-        # fake_A = np.asarray(fake_A,dtype='float')
-        # imgs_B = np.asarray(imgs_B,dtype='float')
-        # m_A = mse(imgs_A,fake_A)
-        # s_A = ssim(imgs_A, fake_A, multichannel=True)
-        #
-        # print("MSE: "+str(m_A)+" SSIM: "+str(s_A))
-
-        # Rescale images 0 - 1
         gen_imgs = 0.5 * gen_imgs + 0.5
 
         titles = ['Condition', 'Generated', 'Original']
@@ -233,7 +240,7 @@ class Pix2Pix():
         plt.close()
 
 
-
 if __name__ == '__main__':
     gan = Pix2Pix()
-    gan.train(epochs=30000, batch_size=4, save_interval=10)
+    gan.train(epochs=5, batch_size=32, save_interval=10)
+    gan.learning_curve()
