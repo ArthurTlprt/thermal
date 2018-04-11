@@ -1,7 +1,6 @@
 from __future__ import print_function, division
 import scipy
 
-from keras.datasets import mnist
 from keras_contrib.layers.normalization import InstanceNormalization
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout, Concatenate
 from keras.layers import BatchNormalization, Activation, ZeroPadding2D
@@ -209,12 +208,13 @@ class CycleGAN():
             # Plot the progress
             print ("%d time: %s loss: %s" % (epoch, elapsed_time, g_loss))
 
+            if g_loss == min(self.combines_scores):
+                print("model saved")
+                self.g_AB.save("models/AB/"+str(g_loss)+".h5")
+                self.g_BA.save("models/BA/"+str(g_loss)+".h5")
             # If at save interval => save generated image samples
             if epoch % save_interval == 0:
                 # Save model to h5 if g_loss better
-                if g_loss == min(self.combines_scores):
-                    self.g_AB.save("models/AB/"+str(g_loss)+".h5")
-                    self.g_BA.save("models/BA/"+str(g_loss)+".h5")
                 self.save_imgs(epoch)
 
     def save_imgs(self, epoch):
@@ -257,5 +257,4 @@ class CycleGAN():
 
 if __name__ == '__main__':
     gan = CycleGAN()
-    gan.train(epochs=30000, batch_size=16, save_interval=200)
-
+    gan.train(epochs=30000, batch_size=2, save_interval=2)

@@ -44,7 +44,7 @@ class Pix2Pix():
         self.gf = 64
         self.df = 64
 
-        optimizer = Adam(0.00001, 0.5)
+        optimizer = Adam(0.0002, 0.5)
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
@@ -240,5 +240,5 @@ class Pix2Pix():
 
 if __name__ == '__main__':
     gan = Pix2Pix()
-    gan.train(epochs=5, batch_size=32, save_interval=10)
+    gan.train(epochs=30000, batch_size=4, save_interval=100)
     gan.learning_curve()
