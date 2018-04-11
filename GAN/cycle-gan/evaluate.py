@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 n = int(sys.argv[1])
 print(n)
-generator = load_model("models/AB/19.7644615471.h5")
+generator = load_model("models/AB/3.61338320374.h5")
 
 def mse(x, y):
     return np.linalg.norm(x - y)
@@ -33,8 +33,6 @@ img_cols = 128
 
 dataset_name = 'thermal2rgb'
 data_loader = DataLoader(dataset_name=dataset_name, img_res=(img_rows, img_cols))
-
-
 
 for j in range(n//10):
     imgs_A, imgs_B = data_loader.load_test_data(batch_size=10)

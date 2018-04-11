@@ -8,7 +8,7 @@ class DataLoader():
         self.img_res = img_res
 
     def load_data(self, domain, batch_size=1, is_testing=False):
-        data_type = "train%s" % domain if not is_testing else "test%s" % domain
+        data_type = "train%s" % domain if not is_testing else "val%s" % domain
         path = glob('./datasets/%s/%s/*' % (self.dataset_name, data_type))
 
         batch_images = np.random.choice(path, size=batch_size)

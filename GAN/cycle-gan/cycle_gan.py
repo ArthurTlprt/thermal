@@ -152,8 +152,8 @@ class CycleGAN():
 
     def train(self, epochs, batch_size=128, save_interval=50):
 
-        half_batch = int(batch_size / 2)
-
+        #half_batch = int(batch_size / 2)
+        half_batch = batch_size
         start_time = datetime.datetime.now()
 
         for epoch in range(epochs):
@@ -183,7 +183,6 @@ class CycleGAN():
 
             # Total disciminator loss
             d_loss = 0.5 * np.add(dA_loss, dB_loss)
-
 
             # ------------------
             #  Train Generators
@@ -257,4 +256,4 @@ class CycleGAN():
 
 if __name__ == '__main__':
     gan = CycleGAN()
-    gan.train(epochs=30000, batch_size=2, save_interval=2)
+    gan.train(epochs=30000, batch_size=1, save_interval=200)
