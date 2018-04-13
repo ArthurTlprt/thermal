@@ -15,6 +15,8 @@ import sys
 from data_loader import DataLoader
 import numpy as np
 import os
+from glob import glob
+
 
 from skimage import data, img_as_float
 from skimage.measure import compare_ssim as ssim
@@ -157,57 +159,71 @@ class Pix2Pix():
 
         start_time = datetime.datetime.now()
 
+        path = glob('./datasets/thermal2rgb/train/*')
+
+        n_batch = len(path)//(batch_size*2)
+
         for epoch in range(epochs):
+            epoch_loss = []
+            epoch_val_loss = []
+            for i in range(n_batch):
+                # ----------------------
+                #  Train Discriminator
+                # ----------------------
 
-            # ----------------------
-            #  Train Discriminator
-            # ----------------------
+                # Sample images and their conditioning counterparts
+                imgs_A, imgs_B = self.data_loader.load_batch(i, batch_size)
 
-            # Sample images and their conditioning counterparts
-            imgs_A, imgs_B = self.data_loader.load_data(batch_size)
+                # Condition on B and generate a translated version
+                fake_A = self.generator.predict(imgs_B)
 
-            # Condition on B and generate a translated version
-            fake_A = self.generator.predict(imgs_B)
+                valid = np.ones((batch_size,) + self.disc_patch)
+                fake = np.zeros((batch_size,) + self.disc_patch)
 
-            valid = np.ones((batch_size,) + self.disc_patch)
-            fake = np.zeros((batch_size,) + self.disc_patch)
+                # Train the discriminators (original images = real / generated = Fake)
+                d_loss_real = self.discriminator.train_on_batch([imgs_A, imgs_B], valid)
+                d_loss_fake = self.discriminator.train_on_batch([fake_A, imgs_B], fake)
+                d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
-            # Train the discriminators (original images = real / generated = Fake)
-            d_loss_real = self.discriminator.train_on_batch([imgs_A, imgs_B], valid)
-            d_loss_fake = self.discriminator.train_on_batch([fake_A, imgs_B], fake)
-            d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+                # ------------------
+                #  Train Generator
+                # ------------------
 
-            # ------------------
-            #  Train Generator
-            # ------------------
+                # Sample images and their conditioning counterparts
+                imgs_A, imgs_B = self.data_loader.load_batch(i+1, batch_size)
 
-            # Sample images and their conditioning counterparts
-            imgs_A, imgs_B = self.data_loader.load_data(batch_size)
+                # The generators want the discriminators to label the generated images as real
+                valid = np.ones((batch_size,) + self.disc_patch)
 
-            # The generators want the discriminators to label the generated images as real
-            valid = np.ones((batch_size,) + self.disc_patch)
+                # Train the generators
+                g_loss = self.combined.train_on_batch([imgs_A, imgs_B], [valid, imgs_A])
+                g_loss = sum(g_loss)
+                epoch_loss.append(g_loss)
 
-            # Train the generators
-            g_loss = self.combined.train_on_batch([imgs_A, imgs_B], [valid, imgs_A])
-            g_loss = sum(g_loss)
+                # get the val loss
+                test_batch_size = batch_size
+                imgs_A, imgs_B = self.data_loader.load_data(test_batch_size, is_testing=True)
 
-            # get the val loss
-            test_batch_size = batch_size
-            imgs_A, imgs_B = self.data_loader.load_data(test_batch_size, is_testing=True)
+                valid = np.ones((test_batch_size,) + self.disc_patch)
+                val_g_loss = self.combined.test_on_batch([imgs_A, imgs_B], [valid, imgs_A], sample_weight=None)
+                val_g_loss = sum(val_g_loss)
+                epoch_val_loss.append(val_g_loss)
 
-            valid = np.ones((test_batch_size,) + self.disc_patch)
-            val_g_loss = self.combined.test_on_batch([imgs_A, imgs_B], [valid, imgs_A], sample_weight=None)
-            val_g_loss = sum(val_g_loss)
-            self.val_loss.append(val_g_loss)
+
 
             elapsed_time = datetime.datetime.now() - start_time
 
+            epoch_loss = sum(epoch_loss)
+            epoch_val_loss = sum(epoch_val_loss)
+
+            self.loss.append(epoch_loss)
+            self.val_loss.append(epoch_val_loss)
+
             # Plot the progress
-            print ("%d time: %s loss: %s val_loss: %s" % (epoch, elapsed_time, g_loss, val_g_loss))
+            print ("%d time: %s loss: %s val_loss: %s" % (epoch, elapsed_time, epoch_loss, epoch_val_loss))
 
-            self.loss.append(g_loss)
 
-            if g_loss == min(self.loss):
+            if epoch_loss == min(self.loss):
                 print("new minimum found")
                 self.generator.save("models/"+str(g_loss)+".h5")
 
@@ -241,5 +257,5 @@ class Pix2Pix():
 
 if __name__ == '__main__':
     gan = Pix2Pix()
-    gan.train(epochs=30000, batch_size=4, save_interval=100)
+    gan.train(epochs=30, batch_size=32, save_interval=1)
     gan.learning_curve()
